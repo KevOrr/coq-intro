@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-From Hammer Require Import Hammer.
-Hammer_version. (* CoqHammer 1.3 for Coq 8.12 *)
-Require Import PeanoNat.
-Theorem n_or_Sn_Odd : forall (n : nat), Nat.Odd n \/ Nat.Odd (n + 1).
-  Fail predict 1.
-  Fail hammer.
-
-=======
->>>>>>> c1e1282 (A)
 (*|
 #####
 Intro
@@ -463,17 +453,6 @@ will attempt to reconstruct that proof in Coq. Now, not all reconstructions will
 due to the fact that Coq is based off of an intuitionistic logic, and most ATPs are based off of
 classical logics. But the vast majority will work.
 
-<<<<<<< HEAD
 Actually, what happened here was somewhat simpler: Hammer was able to solve this goal using only its
 builtin tactics written in Coq. Blast! Okay, let's try something even gnarlier:
 |*)
-
-Require Import PeanoNat.
-Theorem n_or_Sn_Odd : forall (n : nat), Nat.Odd n \/ Nat.Odd (n + 1).
-  predict 1.
-  hammer.
-=======
-Tactician
-*********
-|*)
->>>>>>> c1e1282 (A)
