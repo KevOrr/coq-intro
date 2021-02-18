@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.16: http://docutils.sourceforge.net/" />
+<title>Intro</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="tango_subtle.css" type="text/css" />
+<link rel="stylesheet" href="tango_subtle.min.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.12.0+0.12.0. Coq sources are in this panel; goals and messages will appear in the other. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus.</div><div class="document" id="intro">
+<h1 class="title">Intro</h1>
+
+<p>Before anything else, for a more comprehensive introduction to Coq, I recommend
+<a class="reference external" href="https://softwarefoundations.cis.upenn.edu/">Software Foundations</a> and <a class="reference external" href="http://adam.chlipala.net/cpdt/">Certified
+Programming with Dependent Types</a>. This won't
+be a complete introduction, but in this file I'll quickly review basic Coq syntax
+and commands.</p>
+<div class="section" id="data">
+<h1>Data</h1>
+<p>First off: we use the <code class="highlight coq"><span class="keyword namespace">Inductive</span></code> keyword to define a datatype (think <tt class="docutils literal">data</tt> in
+Haskell or ML). I put these next few definitions into a module so we don't overwrite
+the builtin ones of the same names later in the file.</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Module</span> <span class="nf">Builtins</span>.</span></span><span class="alectryon-wsp"> 
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Inductive</span> <span class="nf">bool</span> : <span class="kt">Set</span> :=
+| true
+| false.</span></span></span></pre><p>We can have recursive types:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Inductive</span> <span class="nf">nat</span> : <span class="kt">Set</span> :=
+| O
+| S (n : nat).</span></span></span></pre><p>We can add type parameters:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Inductive</span> <span class="nf">list</span> (<span class="nv">A</span> : <span class="kt">Type</span>) : <span class="kt">Type</span> :=
+| nil
+| cons (x : A) (xs : list A).</span></span></span></pre><p>We can also use a syntax more familiar to Haskellers:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Reset</span> <span class="nf">list</span>.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Inductive</span> <span class="nf">list</span> (<span class="nv">A</span> : <span class="kt">Type</span>) : <span class="kt">Type</span> :=
+| nil : list A
+| cons : A -&gt; list A -&gt; list A.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="highlight">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">End</span> <span class="nf">Builtins</span>.</span></span></span></pre><p>We can also express GADTs. <tt class="docutils literal">Vector A n</tt> is the type of exactly <tt class="docutils literal">n</tt>-length lists whose
+members are of type <tt class="docutils literal">A</tt>:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Inductive</span> <span class="nf">Vector</span> (<span class="nv">A</span> : <span class="kt">Type</span>) : nat -&gt; <span class="kt">Type</span> :=
+| vnil : Vector A <span class="mi">0</span>
+| vcons : <span class="kr">forall</span> (<span class="nv">n</span> : nat), A -&gt; Vector A n -&gt; Vector A (S n).</span></span></span></pre><p>Here is a <tt class="docutils literal">forall</tt> type. This is a lot like an arrow type (e.g. <tt class="docutils literal">nat <span class="pre">-&gt;</span> A <span class="pre">-&gt;</span> ...</tt>), and
+in fact, <tt class="docutils literal">A <span class="pre">-&gt;</span> B</tt> is a <em>notation</em> (shorthand) for <tt class="docutils literal">forall (_ : A), B</tt>. A <tt class="docutils literal">forall</tt> type
+is called a <em>dependent</em> arrow, in that the <em>type</em> after the <tt class="docutils literal">forall</tt> can <em>depend</em> on the
+<em>value</em> of the <tt class="docutils literal">forall</tt>-quantified variable. This is the way that every explains what
+a dependent arrow is, yet it usually doesn't sink in by simply defining it. Examples help.</p>
+<p>Also notice that we have a type <em>parameter</em> before the colon (<tt class="docutils literal">A</tt>), as well as a type
+<em>index</em> (a value of type <tt class="docutils literal">nat</tt>) after the colon. TODO summarize difference between
+parameters and indices. Let's take a look at what we can do with <code class="highlight coq"><span class="name">Vector</span></code>.</p>
+<p>Let's ask Coq what it thinks the types of <tt class="docutils literal">Vector</tt>, <tt class="docutils literal">vnil</tt>, and <tt class="docutils literal">vcons</tt> are:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk0" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk0"><span class="highlight"><span class="kn">Check</span> Vector.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">Vector
+     : <span class="kt">Type</span> -&gt; nat -&gt; <span class="kt">Type</span></span></blockquote></div></div></small></span></pre><p>That is, <tt class="docutils literal">Vector</tt> is a type function (specifically a type constructor) which takes another
+type (<tt class="docutils literal">A</tt>), a <tt class="docutils literal">nat</tt>, and returns a concrete type.</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk1" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk1"><span class="highlight"><span class="kn">Check</span> vnil.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">vnil
+     : <span class="kr">forall</span> <span class="nv">A</span> : <span class="kt">Type</span>, Vector A <span class="mi">0</span></span></blockquote></div></div></small></span></pre><p><tt class="docutils literal">vnil</tt> takes a type <tt class="docutils literal">A</tt>, and returns a value of type <tt class="docutils literal">Vector A 0</tt></p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk2" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk2"><span class="highlight"><span class="kn">Check</span> vcons.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">vcons
+     : <span class="kr">forall</span> (<span class="nv">A</span> : <span class="kt">Type</span>) (<span class="nv">n</span> : nat),
+       A -&gt; Vector A n -&gt; Vector A (S n)</span></blockquote></div></div></small></span></pre><p><tt class="docutils literal">vcons</tt> takes a type <tt class="docutils literal">A</tt>, a number <tt class="docutils literal">n</tt>, a <em>value</em> of type <tt class="docutils literal">A</tt>, a value of type
+<tt class="docutils literal">Vector A n</tt> (a length-<tt class="docutils literal">n</tt> vector), and returns a value of type <tt class="docutils literal">Vector A (S n)</tt>
+(a length-<tt class="docutils literal">(S n)</tt> vector).</p>
+<div class="section" id="implicit-parameters">
+<h2>Implicit Parameters</h2>
+<p>Notice how <tt class="docutils literal">vnil</tt> and <tt class="docutils literal">vcons</tt> are automatically generalized over <tt class="docutils literal">(A : Type)</tt>,
+because <tt class="docutils literal">Vector</tt> is parameterized over an <tt class="docutils literal">(A : Type)</tt>. Because the correct value
+for <tt class="docutils literal">A</tt> can be easily inferred from the types or values of later arguments, or from
+the return type, we can ask Coq to automatically infer it, instead of us having to always
+specify it:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Reset</span> <span class="nf">Vector</span>.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Inductive</span> <span class="nf">Vector</span> {<span class="nv">A</span> : <span class="kt">Type</span>} : nat -&gt; <span class="kt">Type</span> :=
+| vnil : Vector <span class="mi">0</span>
+| vcons : <span class="kr">forall</span> {<span class="nv">n</span> : nat}, A -&gt; Vector n -&gt; Vector (S n).</span></span></span></pre><p>The curly braces <tt class="docutils literal">{A : Type}</tt> means that Coq should infer <tt class="docutils literal">A</tt> instead of the user having
+to supply it. We call such a parameter an <em>implicit</em> parameter. However, we will often want to
+specify the <tt class="docutils literal">A</tt> in <tt class="docutils literal">Vector A n</tt>, so</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Arguments</span> Vector : <span class="kn">clear implicits</span>.</span></span></span></pre><p>It is somewhat common to follow a type definition containing an implicit type parameter with a
+<tt class="docutils literal">clear implicits</tt> for only the type constructor. I wish there were a more concise syntax for
+this becuase it is such a common pattern...</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk3" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk3"><span class="highlight"><span class="kn">Check</span> Vector.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">Vector
+     : <span class="kt">Type</span> -&gt; nat -&gt; <span class="kt">Type</span></span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk4" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk4"><span class="highlight"><span class="kn">Check</span> vnil.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">vnil
+     : Vector <span class="nl">?A</span> <span class="mi">0</span>
+<span class="kn">where</span>
+<span class="nl">?A</span> : [ |- <span class="kt">Type</span>]</span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk5" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk5"><span class="highlight"><span class="kn">Check</span> vcons.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">vcons
+     : <span class="nl">?A</span> -&gt; Vector <span class="nl">?A</span> <span class="nl">?n</span> -&gt; Vector <span class="nl">?A</span> (S <span class="nl">?n</span>)
+<span class="kn">where</span>
+<span class="nl">?A</span> : [ |- <span class="kt">Type</span>]
+<span class="nl">?n</span> : [ |- nat]</span></blockquote></div></div></small></span></pre><p>Now <tt class="docutils literal">vnil</tt> and <tt class="docutils literal">vcons</tt> look a lot like their list counterparts, <tt class="docutils literal">nil</tt> and <tt class="docutils literal">cons</tt>,
+except with an extra unification variable <tt class="docutils literal"><span class="pre">?n</span></tt> in the <tt class="docutils literal">vcons</tt> case.</p>
+</div>
+</div>
+<div class="section" id="a-taste-of-dependent-types">
+<h1>A taste of dependent types</h1>
+<p>Let's see what we can do with a <tt class="docutils literal">Vector</tt>.</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Definition</span> <span class="nf">vlength</span> {<span class="nv">A</span> <span class="nv">n</span>} (<span class="nv">v</span> : Vector A n) : nat := n.</span></span></span></pre><p>Woah! Why don't we have to actually count how long a vector is to compute its length?
+Because the length of a vector is encoded in its type. What if the length of a vector is
+not known statically, for instance because it's chosen by the user at runtime or it's
+based on a value returned by an RNG? Well, the idea is that the producer of a Vector
+should know how long of a Vector it is producing. If a user asks for a length 4 Vector,
+then that function which creates the Vector knows that it has a length of 4. This value
+is then carried around in its type.</p>
+<p>Doesn't this have terrible implications for runtime performance? Well, yes and no. Mostly
+no, but that's a topic for another day.</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Definition</span> <span class="nf">vhead</span> {<span class="nv">A</span> <span class="nv">n</span>} (<span class="nv">v</span> : Vector A (S n)) : A :=
+  <span class="kr">match</span> v <span class="kr">with</span>
+  | vcons x _ =&gt; x
+  <span class="kr">end</span>.</span></span></span></pre><p>Few things to unpack here:</p>
+<ul class="simple">
+<li>Notice the <tt class="docutils literal">{A n}</tt>. This gets elaborated (automatically inferred) as <tt class="docutils literal">{A : Type} {n : nat}</tt>
+becuase of how <tt class="docutils literal">A</tt> and <tt class="docutils literal">n</tt> are used in <tt class="docutils literal">Vector A (S n)</tt>, making it obvious what their types
+should be. Then the curly braces are again implicit parameters.</li>
+<li>The <tt class="docutils literal">(S n)</tt> indicates that there should be at least one element in the vector <code class="highlight coq"><span class="name">v</span></code>, because 0 is not
+the successor of any number (¬∃ n, 0 = S n)</li>
+<li>Then, we only need to pattern match on the <tt class="docutils literal">vcons</tt> case. Is this a partial function? No, Coq doesn't
+permit partial functions. It is because the type of <tt class="docutils literal">v</tt>, namely that it's index is <tt class="docutils literal">S</tt> of some number.
+Because <tt class="docutils literal">vcons</tt> is the only constructor that returns a <tt class="docutils literal">Vector _ (S _)</tt> (<tt class="docutils literal">vnil</tt> returns a
+<tt class="docutils literal">Vector _ 0</tt>), then <tt class="docutils literal">vcons</tt> is the only constructor that needs to be considered.</li>
+</ul>
+<p>In fact, something much more complicated is happening behind the scenes, and this is part of the power
+behind fully dependent pattern matching. Idris and Agda have long supported the kind of pattern match
+given above, where we only have to consider the <tt class="docutils literal">vcons</tt> case. In Coq, this used to be a much longer
+incantation, and only recently has it begun to accept definitions like the one above and elaborate
+it to the full thing. If you're curious, here's what the above elaborates to:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input class="alectryon-toggle" id="intro-v-chk6" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk6"><span class="highlight"><span class="kn">Print</span> vhead.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">vhead = 
+<span class="kr">fun</span> (<span class="nv">A</span> : <span class="kt">Type</span>) (<span class="nv">n</span> : nat) (<span class="nv">v</span> : Vector A (S n)) =&gt;
+<span class="kr">match</span>
+  v <span class="kr">in</span> (Vector _ n0)
+  <span class="kr">return</span> <span class="kr">match</span> n0 <span class="kr">with</span>
+         | <span class="mi">0</span> =&gt; IDProp
+         | S _ =&gt; A
+         <span class="kr">end</span>
+<span class="kr">with</span>
+| vnil =&gt; idProp
+| vcons x _ =&gt; x
+<span class="kr">end</span>
+     : <span class="kr">forall</span> (<span class="nv">A</span> : <span class="kt">Type</span>) (<span class="nv">n</span> : nat),
+       Vector A (S n) -&gt; A
+
+<span class="kn">Arguments</span> vhead {A}%type_scope {n}%nat_scope</span></blockquote></div></div></small></span></pre><p>Before showing <tt class="docutils literal">vtail</tt>, first here is the nat predecessor function:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk7" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk7"><span class="highlight"><span class="kn">Print</span> Nat.pred.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">Nat.pred = 
+<span class="kr">fun</span> <span class="nv">n</span> : nat =&gt; <span class="kr">match</span> n <span class="kr">with</span>
+               | <span class="mi">0</span> =&gt; n
+               | S u =&gt; u
+               <span class="kr">end</span>
+     : nat -&gt; nat
+
+<span class="kn">Arguments</span> Nat.pred _%nat_scope</span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk8" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk8"><span class="highlight"><span class="kn">Compute</span> Nat.pred <span class="mi">5</span>.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">= <span class="mi">4</span>
+: nat</span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk9" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk9"><span class="highlight"><span class="kn">Compute</span> Nat.pred <span class="mi">1</span>.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">= <span class="mi">0</span>
+: nat</span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chka" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chka"><span class="highlight"><span class="kn">Compute</span> Nat.pred <span class="mi">0</span>.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">= <span class="mi">0</span>
+: nat</span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="highlight">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Definition</span> <span class="nf">vtail</span> {<span class="nv">A</span> <span class="nv">n</span>} (<span class="nv">v</span> : Vector A n) : Vector A (Nat.pred n) :=
+  <span class="kr">match</span> v <span class="kr">with</span>
+  | vnil =&gt; vnil
+  | vcons _ xs =&gt; xs
+  <span class="kr">end</span>.</span></span></span></pre><p>This is typechecked by case analysis:</p>
+<ul class="simple">
+<li>In the <tt class="docutils literal">vnil</tt> case, we are given a <tt class="docutils literal">Vector A 0</tt> and must produce a <tt class="docutils literal">Vector A (pred 0)</tt>,
+but as shown above <tt class="docutils literal">pred 0 = 0</tt>, so we can return something of type <tt class="docutils literal">Vector A 0</tt>. That's
+exactly what we're given!</li>
+<li>In the <tt class="docutils literal">vcons</tt> case, we are given a <tt class="docutils literal">Vector A (S n)</tt> and must produce a
+<tt class="docutils literal">Vector A (pred (S n))</tt> but again, due to its definition, <tt class="docutils literal">Nat.pred (S n) = n</tt>, so we
+can return a <tt class="docutils literal">Vector A n</tt>. If <tt class="docutils literal">vcons _ xs : Vector A (S n)</tt>, then <tt class="docutils literal">xs : Vector A n</tt></li>
+</ul>
+<p>Now we can try concatenating vectors, but first, we'll need addition:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chkb" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chkb"><span class="highlight"><span class="kn">Print</span> Nat.add.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">Nat.add = 
+<span class="kr">fix</span> add (n m : nat) {<span class="kr">struct</span> n} : nat :=
+  <span class="kr">match</span> n <span class="kr">with</span>
+  | <span class="mi">0</span> =&gt; m
+  | S p =&gt; S (add p m)
+  <span class="kr">end</span>
+     : nat -&gt; nat -&gt; nat
+
+<span class="kn">Arguments</span> Nat.add (_ _)%nat_scope</span></blockquote></div></div></small></span></pre><p>This is our first recursive function, and you'll notice the distinctive <tt class="docutils literal">fix</tt> keyword.
+This is the keyword for signalling that a recursive function follows; otherwise functions
+are not allowed to be recursive. This has to do with Coq only permitting programs that
+provably terminate on all inputs. Non-recursive functions certainly terminate, so the
+special case becomes recursive functions. I won't get into how it checks whether a recursive
+definition is certainly terminating, but suffice it to say that <tt class="docutils literal">Nat.add</tt> is shown
+to terminate.</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Fixpoint</span> <span class="nf">vappend</span> {<span class="nv">A</span> <span class="nv">n</span> <span class="nv">m</span>} (<span class="nv">v1</span> : Vector A n) (<span class="nv">v2</span> : Vector A m) : Vector A (n + m) :=
+  <span class="kr">match</span> v1 <span class="kr">with</span>
+  | vnil =&gt; v2
+  | vcons x xs =&gt; vcons x (vappend xs v2)
+  <span class="kr">end</span>.</span></span></span></pre><p>It's almost a miracle that this definition is permitted. In fact, it would not be permitted
+if the type signature ended in <tt class="docutils literal">Vector A (m + n)</tt>, even though such a function should
+certainly exist! Let's open the proof shell to see how we can define such a function:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chkc" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chkc"><span class="highlight"><span class="kn">Theorem</span> <span class="nf">vappend&#39;</span> {<span class="nv">A</span> <span class="nv">n</span> <span class="nv">m</span>} (<span class="nv">v1</span> : Vector A n) (<span class="nv">v2</span> : Vector A m) : Vector A (m + n).</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><div class="goal-hyp"><span class="hyp-names">A</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight"><span class="kt">Type</span></span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">n, m</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">nat</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">v1</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A n</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">v2</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A m</span></span></span></span></div></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="highlight">Vector A (m + n)</span></div></blockquote></div></div></small></span></pre><p>The items above the line are our hypotheses, or assumptions. The item(s) below the line are the goal(s). We must use the hypotheses to prove the goal in each case</p>
+<p><tt class="docutils literal">induction</tt> is how we start a recursive definition... No, actually, it's how you apply the principle of mathematical induction... No, actually, those are the same thing... Another topic for another day...</p>
+<p>We induction on <tt class="docutils literal">v2</tt> this time, because the first argument to <tt class="docutils literal">Nat.add</tt> is the one which it recurses on, and <tt class="docutils literal">m</tt> is the index of <tt class="docutils literal">v2</tt>. Don't worry if that doesn't make sense</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="highlight">  </span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chkd" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chkd"><span class="highlight"><span class="nb">induction</span> v1 <span class="kr">as</span> [ | ? x xs IH ].</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><div class="goal-hyp"><span class="hyp-names">A</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight"><span class="kt">Type</span></span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">m</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">nat</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">v2</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A m</span></span></span></span></div></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="highlight">Vector A (m + <span class="mi">0</span>)</span></div></blockquote><div class="alectryon-extra-goals"><input class="alectryon-extra-goal-toggle" id="intro-v-chke" style="display: none" type="checkbox"><blockquote class="alectryon-goal"><div class="goal-hyps"><div class="goal-hyp"><span class="hyp-names">A</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight"><span class="kt">Type</span></span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">m, n</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">nat</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">x</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">A</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">xs</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A n</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">v2</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A m</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">IH</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A (m + n)</span></span></span></span></div></div><label class="goal-separator alectryon-extra-goal-label" for="intro-v-chke"><hr></label><div class="goal-conclusion"><span class="highlight">Vector A (m + S n)</span></div></blockquote></div></div></div></small></span></pre><p>This leaves us with two goals, one in the case that <tt class="docutils literal">v1 = vnil</tt>, and one in the case <tt class="docutils literal">v1 = vcons _ _</tt></p>
+<p>Let's see if the first goal can be simplified by applying <tt class="docutils literal">Nat.add</tt>...</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="highlight">  </span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="intro-v-chkf" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chkf"><span class="highlight">-</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><div class="goal-hyp"><span class="hyp-names">A</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight"><span class="kt">Type</span></span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">m</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">nat</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">v2</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A m</span></span></span></span></div></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="highlight">Vector A (m + <span class="mi">0</span>)</span></div></blockquote></div></div></small><span class="alectryon-wsp"> </span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk10" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk10"><span class="highlight"><span class="nb">simpl</span>.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><div class="goal-hyp"><span class="hyp-names">A</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight"><span class="kt">Type</span></span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">m</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">nat</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">v2</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A m</span></span></span></span></div></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="highlight">Vector A (m + <span class="mi">0</span>)</span></div></blockquote></div></div></small></span></pre><p>Let's first use an existing lemma that shows that <tt class="docutils literal">n + 0 = n</tt></p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="highlight">    </span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk11" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk11"><span class="highlight"><span class="kn">SearchRewrite</span> (_ + <span class="mi">0</span>).</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">plus_n_O: <span class="kr">forall</span> <span class="nv">n</span> : nat, n = n + <span class="mi">0</span></span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk12" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk12"><span class="highlight"><span class="nb">rewrite</span> &lt;- plus_n_O.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><div class="goal-hyp"><span class="hyp-names">A</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight"><span class="kt">Type</span></span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">m</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">nat</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">v2</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A m</span></span></span></span></div></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="highlight">Vector A m</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="bp">exact</span> v2.</span></span></span></pre><p>The second case is a bit trickier:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="highlight">  </span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk13" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk13"><span class="highlight">-</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><div class="goal-hyp"><span class="hyp-names">A</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight"><span class="kt">Type</span></span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">m, n</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">nat</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">x</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">A</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">xs</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A n</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">v2</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A m</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">IH</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A (m + n)</span></span></span></span></div></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="highlight">Vector A (m + S n)</span></div></blockquote></div></div></small></span></pre><p>Let's first use an existing lemma that shows that <tt class="docutils literal">x + S y = S (x + y)</tt></p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="highlight">    </span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk14" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk14"><span class="highlight"><span class="kn">SearchRewrite</span> (_ + S _).</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">plus_n_Sm: <span class="kr">forall</span> <span class="nv">n</span> <span class="nv">m</span> : nat, S (n + m) = n + S m</span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">    </span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk15" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk15"><span class="highlight"><span class="nb">rewrite</span> &lt;- plus_n_Sm.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-goals"><blockquote class="alectryon-goal"><div class="goal-hyps"><div class="goal-hyp"><span class="hyp-names">A</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight"><span class="kt">Type</span></span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">m, n</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">nat</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">x</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">A</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">xs</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A n</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">v2</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A m</span></span></span></span></div><div class="goal-hyp"><span class="hyp-names">IH</span><span><span class="hyp-type-block"><span class="hyp-punct">:</span><span class="hyp-type"><span class="highlight">Vector A (m + n)</span></span></span></span></div></div><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="highlight">Vector A (S (m + n))</span></div></blockquote></div></div></small></span></pre><p>Now we know that a <tt class="docutils literal">Vector A (S _)</tt> can only be introduced by <tt class="docutils literal">vcons</tt></p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="highlight">    </span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="bp">exact</span> (vcons x IH).</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Defined</span>.</span></span></span></pre><p>The types line up, but is the definition correct?</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Definition</span> <span class="nf">v</span> := <span class="kn">Eval</span> <span class="nb">cbv</span> <span class="kr">in</span> vappend&#39; (vcons <span class="mi">1</span> (vcons <span class="mi">2</span> vnil)) (vcons <span class="mi">3</span> (vcons <span class="mi">4</span> vnil)).</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk16" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk16"><span class="highlight"><span class="kn">Print</span> v.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">v = 
+<span class="kr">match</span>
+  plus_n_Sm <span class="mi">2</span> <span class="mi">1</span> <span class="kr">in</span> (_ = y) <span class="kr">return</span> (Vector nat y)
+<span class="kr">with</span>
+| eq_refl =&gt;
+    vcons <span class="mi">1</span>
+      <span class="kr">match</span>
+        plus_n_Sm <span class="mi">2</span> <span class="mi">0</span> <span class="kr">in</span> (_ = y) <span class="kr">return</span> (Vector nat y)
+      <span class="kr">with</span>
+      | eq_refl =&gt;
+          vcons <span class="mi">2</span>
+            <span class="kr">match</span>
+              plus_n_O <span class="mi">2</span> <span class="kr">in</span> (_ = y)
+              <span class="kr">return</span> (Vector nat y)
+            <span class="kr">with</span>
+            | eq_refl =&gt; vcons <span class="mi">3</span> (vcons <span class="mi">4</span> vnil)
+            <span class="kr">end</span>
+      <span class="kr">end</span>
+<span class="kr">end</span>
+     : Vector nat (<span class="mi">2</span> + <span class="mi">2</span>)</span></blockquote></div></div></small></span></pre><p>Well that's... awful. But we can still see the <tt class="docutils literal">vcons 1 <span class="pre">(...</span> (vcons 4 <span class="pre">vnil)))</span></tt> hidden in there.
+The reason there's a bunch of extra noise has to do with the <em>opaqueness</em> of <tt class="docutils literal">plus_n_Sm</tt> and
+<tt class="docutils literal">plus_n_O</tt>. They are declared to be opaque, and so they can't be simplified away during reduction.
+However, if we extract this code into a non-dependently typed language, all of the <tt class="docutils literal">eq_</tt> nonsense
+goes away:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Require</span> <span class="kn">Extraction</span>.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Extraction Language Haskell</span>.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Extraction Inline</span> eq_rect.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Extraction Inline</span> Vector_rect.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="highlight">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk17" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk17"><span class="highlight"><span class="kn">Extraction</span> vappend&#39;.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">vappend&#39; :: Nat -&gt; Nat -&gt; (Vector a1) -&gt; (Vector a1)
+            -&gt; Vector a1
+vappend&#39; _ m v1 v2 =
+  <span class="nb">case</span> v1 of {
+   Vnil -&gt; v2;
+   Vcons n y v -&gt; Vcons (add m n) y
+    (vappend&#39; n m v v2)}
+
+</span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="highlight">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk18" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk18"><span class="highlight"><span class="kn">Extraction</span> v.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">v :: Vector Nat
+v =
+  Vcons (S (S (S O))) (S O) (Vcons (S (S O)) (S (S O))
+    (Vcons (S O) (S (S (S O))) (Vcons O (S (S (S (S
+    O)))) Vnil)))
+
+</span></blockquote></div></div></small></span></pre></div>
+<div class="section" id="extraction">
+<h1>Extraction</h1>
+<p>This demonstrates an interesting feature, however: extraction. One of Coq's killer features is the
+ability to extract Coq code into a variety of other functional programming languages, namely OCaml,
+Haskell, and Scheme. In the process, we lose any dependent typing, so guarantees are lost. But the
+invariants that held in the code will still hold. For instance,</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk19" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk19"><span class="highlight"><span class="kn">Extraction</span> vhead.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">vhead :: Nat -&gt; (Vector a1) -&gt; a1
+vhead _ v =
+  <span class="nb">case</span> v of {
+   Vnil -&gt; __;
+   Vcons _ x _ -&gt; x}
+
+</span></blockquote></div></div></small></span></pre><p>What is that <tt class="docutils literal">__</tt> there? Well if we extract a complete module instead of one defintion...</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk1a" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk1a"><span class="highlight"><span class="kn">Recursive Extraction</span> vhead.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">module Main <span class="kn">where</span>
+
+import qualified Prelude
+
+__ :: any
+__ = Prelude.error <span class="s2">&quot;Logical or arity value used&quot;</span>
+
+data Nat =
+   O
+ | S Nat
+
+data Vector a =
+   Vnil
+ | Vcons Nat a (Vector a)
+
+vhead :: Nat -&gt; (Vector a1) -&gt; a1
+vhead _ v =
+  <span class="nb">case</span> v of {
+   Vnil -&gt; __;
+   Vcons _ x _ -&gt; x}
+
+</span></blockquote></div></div></small></span></pre><p>We can see that <tt class="docutils literal">__</tt> is a runtime error. This makes sense because you cannot take the head of a
+<tt class="docutils literal">vnil</tt>. Haskell doesn't have dependent types (and the spec does not yet mention GADTs), so <tt class="docutils literal">vhead</tt>
+can't enforce the pre-invariant; it's up to the caller to make sure to only call <tt class="docutils literal">vhead</tt> with a
+<tt class="docutils literal">vcons</tt>. On the other hand,</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Definition</span> <span class="nf">vhead_safe</span> {<span class="nv">A</span> <span class="nv">n</span>} (<span class="nv">v</span> : Vector A n) : option A :=
+  <span class="kr">match</span> v <span class="kr">with</span>
+  | vnil =&gt; None
+  | vcons x _ =&gt; Some x
+  <span class="kr">end</span>.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="highlight">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Extract Inductive</span> option =&gt; Maybe [Just Nothing].</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk1b" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk1b"><span class="highlight"><span class="kn">Extraction</span> vhead_safe.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">vhead_safe :: Nat -&gt; (Vector a1) -&gt; Maybe a1
+vhead_safe _ v =
+  <span class="nb">case</span> v of {
+   Vnil -&gt; Nothing;
+   Vcons _ x _ -&gt; Just x}
+
+</span></blockquote></div></div></small></span></pre></div>
+<div class="section" id="dependent-match-and-prop">
+<h1>Dependent match, and Prop</h1>
+<p>Let's revisit <tt class="docutils literal">__</tt>. It could have just as easily been defined as
+<tt class="docutils literal">undefined</tt>, except the error message is descriptive and helpful. In fact, what does it say?
+&quot;Logical or arity value used&quot;? Huh? Why not just say &quot;we've hit an absurd case! did you break
+an invariant?&quot;? Well that's actually not what this error message is saying at all! Let's take
+another look at vhead's full, elaborated, definition:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk1c" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk1c"><span class="highlight"><span class="kn">Print</span> vhead.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">vhead = 
+<span class="kr">fun</span> (<span class="nv">A</span> : <span class="kt">Type</span>) (<span class="nv">n</span> : nat) (<span class="nv">v</span> : Vector A (S n)) =&gt;
+<span class="kr">match</span>
+  v <span class="kr">in</span> (Vector _ n0)
+  <span class="kr">return</span> <span class="kr">match</span> n0 <span class="kr">with</span>
+         | <span class="mi">0</span> =&gt; IDProp
+         | S _ =&gt; A
+         <span class="kr">end</span>
+<span class="kr">with</span>
+| vnil =&gt; idProp
+| vcons x _ =&gt; x
+<span class="kr">end</span>
+     : <span class="kr">forall</span> (<span class="nv">A</span> : <span class="kt">Type</span>) (<span class="nv">n</span> : nat),
+       Vector A (S n) -&gt; A
+
+<span class="kn">Arguments</span> vhead {A}%type_scope {n}%nat_scope</span></blockquote></div></div></small></span></pre><p>If you look in the <tt class="docutils literal">vnil</tt> case, it returns an <tt class="docutils literal">idProp</tt>. Well, actually, the <tt class="docutils literal">vnil</tt> case
+can never be hit, because <tt class="docutils literal">v : Vector A (S n)</tt>. So why do we have to include anything at all?
+Well, Coq's <tt class="docutils literal">match</tt> knows nothing about absurd cases. We must use <tt class="docutils literal">match</tt> in such a way
+that, inside of a match, we return something trivial for the <tt class="docutils literal">vnil</tt> case, and on the outside,
+since we know that the <tt class="docutils literal">vnil</tt> case will never be hit, the return type of the entire match only
+depends on what the return type for the <tt class="docutils literal">vcons</tt> case is.</p>
+<p>What the <tt class="docutils literal">return match ... end</tt> clause describes is how the return type of the match changes
+in each case. It says &quot;inside the match, if the length of <tt class="docutils literal">v</tt> is 0, return an <tt class="docutils literal">IDProp</tt> (more
+on <tt class="docutils literal">IDProp</tt> later); otherwise if it's <tt class="docutils literal">S _</tt>, return an <tt class="docutils literal">A</tt>&quot;. But it also describes what the
+return type of the whole match is. The return type of the whole match is</p>
+<pre class="code coq literal-block">
+<span class="keyword reserved">match</span> <span class="operator">(</span><span class="name">S</span> <span class="name">n</span><span class="operator">)</span> <span class="keyword reserved">with</span>
+<span class="operator">|</span> <span class="literal number integer">0</span> <span class="operator">=&gt;</span> <span class="name">IDProp</span>
+<span class="operator">|</span> <span class="name">S</span> <span class="name">_</span> <span class="operator">=&gt;</span> <span class="name">A</span>
+<span class="keyword reserved">end</span>
+</pre>
+<p>But this just simplifies down to just <tt class="docutils literal">A</tt>. Aha! So inside the match, we must return an <tt class="docutils literal">IDProp</tt>
+in the <tt class="docutils literal">vnil</tt> case, and an <tt class="docutils literal">A</tt> in the <tt class="docutils literal">vcons</tt> case, but outside the match, we know we will
+always have an <tt class="docutils literal">A</tt>. This is how you elide absurd cases using dependent match.</p>
+<div class="section" id="prop">
+<h2>Prop</h2>
+<p>Okay, now, what are <tt class="docutils literal">IDProp</tt> and <tt class="docutils literal">idProp</tt>?</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk1d" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk1d"><span class="highlight"><span class="kn">Print</span> IDProp.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">IDProp = <span class="kr">forall</span> <span class="nv">A</span> : <span class="kt">Prop</span>, A -&gt; A
+     : <span class="kt">Prop</span></span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk1e" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk1e"><span class="highlight"><span class="kn">Print</span> idProp.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">idProp = <span class="kr">fun</span> (<span class="nv">A</span> : <span class="kt">Prop</span>) (<span class="nv">x</span> : A) =&gt; x
+     : IDProp
+
+Expanded type <span class="kr">for</span> implicit arguments
+idProp : <span class="kr">forall</span> [A : <span class="kt">Prop</span>], A -&gt; A
+
+<span class="kn">Arguments</span> idProp [A]</span></blockquote></div></div></small></span></pre><p>Put simply <tt class="docutils literal">IDProp</tt> is a trivially true proposition, and <tt class="docutils literal">idProp</tt> is a proof of <tt class="docutils literal">IDProp</tt>.
+Proposition?</p>
+<p>Due to the <a class="reference external" href="https://en.wikipedia.org/wiki/Curry%E2%80%93Howard_correspondence">Curry-Howard correspondence</a>,
+the class of mathematical propositions is <em>isomorphic</em> to the class of types. All this means is
+that there is a one-to-one correspondence between proofs (in the mathematical sense) and programs.
+Under this analogy, propositions are types, and proofs are programs. That is fundamentally why
+we can write proofs in a functional programming language such as Coq.</p>
+<p>For instance, we are all familiar with the proposition of equality, yes? <tt class="docutils literal">x = y</tt>. What do
+we know of equality. Well, it's the smallest relation that's reflexive, symmetric, and transitive.
+How is it defined in Coq? (Yes, equality is <em>defined</em>, not primitive, in Coq)</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk1f" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk1f"><span class="highlight"><span class="kn">Locate</span> <span class="s2">&quot;_ = _&quot;</span>.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight"><span class="kn">Notation</span>
+<span class="s2">&quot;x = y&quot;</span> := eq x y : type_scope
+(default interpretation)</span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk20" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk20"><span class="highlight"><span class="kn">Print</span> eq.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight"><span class="kn">Inductive</span> <span class="nf">eq</span> (<span class="nv">A</span> : <span class="kt">Type</span>) (<span class="nv">x</span> : A) : A -&gt; <span class="kt">Prop</span> :=
+    eq_refl : x = x
+
+<span class="kn">Arguments</span> eq {A}%type_scope
+<span class="kn">Arguments</span> eq_refl {A}%type_scope {x}, [A] _</span></blockquote></div></div></small></span></pre><p>Equality is an inductive type! Moreover, it only has one constructor. Hmm, the type signature
+is a little confusing. It would be easier to grok if eq were instead defined as</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Inductive</span> <span class="nf">eq&#39;</span> {<span class="nv">A</span> : <span class="kt">Type</span>} : A -&gt; A -&gt; <span class="kt">Prop</span> :=
+| eq&#39;_refl : <span class="kr">forall</span> <span class="nv">x</span>, eq&#39; x x.</span></span></span></pre><p>That is, eq' is an inductive type with only <em>one</em> constructor. This constructor says that
+for all values <tt class="docutils literal">x</tt>, <tt class="docutils literal">x</tt> equals itself. That is to say, equality is reflexive. What
+about the other two properties, symmetry and transitivity? I won't get into it here, but
+they actually follow from reflexivity and <tt class="docutils literal">eq</tt>-elimination (a.k.a the idiscernibility of
+identicals).</p>
+<p>So what does &quot;Logical or arity value used&quot; mean? Well, although proofs are programs, not all
+proofs need to actually wind up in the extracted output program. <tt class="docutils literal">idProp</tt> is simple enough,
+but what about a beast like</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="highlight"><span class="c">(* Just quickly redefining the stdlib theorem *)</span>
+</span></span><span class="alectryon-sentence"><input class="alectryon-toggle" id="intro-v-chk21" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk21"><span class="highlight"><span class="kn">Theorem</span> <span class="nf">plus_n_Sm&#39;</span> : <span class="kr">forall</span> <span class="nv">n</span> <span class="nv">m</span> : nat, S (n + m) = n + S m.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="highlight"><span class="kr">forall</span> <span class="nv">n</span> <span class="nv">m</span> : nat, S (n + m) = n + S m</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="nb">induction</span> n; [<span class="bp">easy</span> | <span class="bp">now</span> <span class="nb">intros</span>; <span class="nb">simpl</span>; <span class="nb">rewrite</span> &lt;- IHn].</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Defined</span>.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="highlight">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk22" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk22"><span class="highlight"><span class="kn">Compute</span> plus_n_Sm&#39;.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">= <span class="kr">fun</span> <span class="nv">n</span> : nat =&gt;
+  (<span class="kr">fix</span> Ffix (x : nat) :
+       <span class="kr">forall</span> <span class="nv">x0</span> : nat,
+       S
+         ((<span class="kr">fix</span> Ffix0 (x1 x2 : nat) {<span class="kr">struct</span> x1} :
+               nat :=
+             <span class="kr">match</span> x1 <span class="kr">with</span>
+             | <span class="mi">0</span> =&gt; x2
+             | S x3 =&gt; S (Ffix0 x3 x2)
+             <span class="kr">end</span>) x x0) =
+       (<span class="kr">fix</span> Ffix0 (x1 x2 : nat) {<span class="kr">struct</span> x1} :
+            nat :=
+          <span class="kr">match</span> x1 <span class="kr">with</span>
+          | <span class="mi">0</span> =&gt; x2
+          | S x3 =&gt; S (Ffix0 x3 x2)
+          <span class="kr">end</span>) x (S x0) :=
+     <span class="kr">match</span>
+       x <span class="kr">as</span> c
+       <span class="kr">return</span>
+         (<span class="kr">forall</span> <span class="nv">x0</span> : nat,
+          S
+            ((<span class="kr">fix</span> Ffix0
+                (x1 x2 : nat) {<span class="kr">struct</span> x1} :
+                  nat :=
+                <span class="kr">match</span> x1 <span class="kr">with</span>
+                | <span class="mi">0</span> =&gt; x2
+                | S x3 =&gt; S (Ffix0 x3 x2)
+                <span class="kr">end</span>) c x0) =
+          (<span class="kr">fix</span> Ffix0 (x1 x2 : nat) {<span class="kr">struct</span> x1} :
+               nat :=
+             <span class="kr">match</span> x1 <span class="kr">with</span>
+             | <span class="mi">0</span> =&gt; x2
+             | S x3 =&gt; S (Ffix0 x3 x2)
+             <span class="kr">end</span>) c (S x0))
+     <span class="kr">with</span>
+     | <span class="mi">0</span> =&gt; <span class="kr">fun</span> <span class="nv">x0</span> : nat =&gt; plus_n_Sm <span class="mi">0</span> x0
+     | S x0 =&gt;
+         <span class="kr">fun</span> <span class="nv">x1</span> : nat =&gt;
+         <span class="kr">match</span>
+           Ffix x0 x1 <span class="kr">in</span> (_ = H)
+           <span class="kr">return</span>
+             (S
+                (S
+                   ((<span class="kr">fix</span> Ffix0
+                       (x2 x3 : nat) {<span class="kr">struct</span> x2} :
+                         nat :=
+                       <span class="kr">match</span> x2 <span class="kr">with</span>
+                       | <span class="mi">0</span> =&gt; x3
+                       | S x4 =&gt; S (Ffix0 x4 x3)
+                       <span class="kr">end</span>) x0 x1)) = S H)
+         <span class="kr">with</span>
+         | eq_refl =&gt; eq_refl
+         <span class="kr">end</span>
+     <span class="kr">end</span>) n
+: <span class="kr">forall</span> <span class="nv">n</span> <span class="nv">m</span> : nat, S (n + m) = n + S m</span></blockquote></div></div></small></span></pre><p>Holy cow, that's huge! Are we really running that code whenever some extracted code calls
+<tt class="docutils literal">plus_n_Sm</tt>? Actually, no. Recall that <tt class="docutils literal">vappend'</tt> used <tt class="docutils literal">plus_n_Sm</tt> in its definition,
+and yet, <tt class="docutils literal">plus_n_Sm</tt> didn't show up at all in the extracted output. Here it is again:</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk23" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk23"><span class="highlight"><span class="kn">Extraction</span> vappend&#39;.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">vappend&#39; :: Nat -&gt; Nat -&gt; (Vector a1) -&gt; (Vector a1)
+            -&gt; Vector a1
+vappend&#39; _ m v1 v2 =
+  <span class="nb">case</span> v1 of {
+   Vnil -&gt; v2;
+   Vcons n y v -&gt; Vcons (add m n) y
+    (vappend&#39; n m v v2)}
+
+</span></blockquote></div></div></small></span></pre><p>Why doesn't it have to show up? Well, simply put, the exact contents of <tt class="docutils literal">plus_n_Sm</tt> are
+<em>irrelevant</em> to the rest of the code. It can never affect the control or data flow of our program.
+Specifically in this case, that is because the only value <tt class="docutils literal">plus_n_Sm</tt> could ever return
+is <tt class="docutils literal">eq_refl</tt>. But moreover, it is because <tt class="docutils literal">eq : ... <span class="pre">-&gt;</span> Prop</tt>. <tt class="docutils literal">eq</tt> is an inductive
+type in <em>sort</em> <tt class="docutils literal">Prop</tt>. I can't get too much into sorts, but <tt class="docutils literal">Prop</tt> is a special one.
+Coq's type system (based upon the Calculus of (Co-)Inductive Constructions, CIC) is carefully
+designed to not allow a value of sort <tt class="docutils literal">Set</tt> or <tt class="docutils literal">Type</tt> to depend on any value of sort
+<tt class="docutils literal">Prop</tt>. This essentially means that <em>no</em> value of sort <tt class="docutils literal">Prop</tt> needs to wind up in extracted
+code.</p>
+<p>That's enough of that. Let's learn about some program sythesis.</p>
+</div>
+</div>
+<div class="section" id="hammer">
+<h1>Hammer</h1>
+<p>The <a class="reference external" href="https://github.com/lukaszcz/coqhammer">Coq Hammer</a> (terrible, unfortunate name) is
+&quot;an automated reasoning Hammer tool for Coq&quot;. The term Hammer (to my best knowledge) refers
+to a <a class="reference external" href="https://www.cl.cam.ac.uk/~lp15/papers/Automation/paar.pdf">2010 paper</a> about
+linking interactive proof assistants (like Coq, but the paper is about Isabelle/HOL) with
+automatic theorem provers (ATPs) (e.g. CVC, Twelf, Z3, SPARK). With no further ado,</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">From</span> Hammer <span class="kn">Require Import</span> Hammer.</span></span></span></pre><p>Let's try to prove some really gnarly theorem</p>
+<pre class="alectryon-io"><!-- Generator: Alectryon --><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk24" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk24"><span class="highlight"><span class="kn">Theorem</span> <span class="nf">nat_thing</span> : <span class="kr">forall</span> <span class="nv">n</span> <span class="nv">m</span>, (n + m) * (<span class="mi">2</span>*n*n + n*m) = (n*n + n*m) * (<span class="mi">2</span>*n + m).</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="highlight"><span class="kr">forall</span> <span class="nv">n</span> <span class="nv">m</span> : nat,
+(n + m) * (<span class="mi">2</span> * n * n + n * m) =
+(n * n + n * m) * (<span class="mi">2</span> * n + m)</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk25" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk25"><span class="highlight">hammer.</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-messages"><blockquote class="alectryon-message"><span class="highlight">Replace the hammer tactic <span class="kr">with</span>: sauto</span></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Abort</span>.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp"><span class="highlight">
+</span></span><span class="alectryon-sentence"><input checked="checked" class="alectryon-toggle" id="intro-v-chk26" style="display: none" type="checkbox"><label class="alectryon-input" for="intro-v-chk26"><span class="highlight"><span class="kn">Theorem</span> <span class="nf">nat_thing</span> : <span class="kr">forall</span> <span class="nv">n</span> <span class="nv">m</span>, (n + m) * (<span class="mi">2</span>*n*n + n*m) = (n*n + n*m) * (<span class="mi">2</span>*n + m).</span></label><small class="alectryon-output"><div class="alectryon-output-sticky-wrapper"><div class="alectryon-goals"><blockquote class="alectryon-goal"><span class="goal-separator"><hr></span><div class="goal-conclusion"><span class="highlight"><span class="kr">forall</span> <span class="nv">n</span> <span class="nv">m</span> : nat,
+(n + m) * (<span class="mi">2</span> * n * n + n * m) =
+(n * n + n * m) * (<span class="mi">2</span> * n + m)</span></div></blockquote></div></div></small><span class="alectryon-wsp">
+</span></span><span class="alectryon-wsp">  </span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight">sauto.</span></span><span class="alectryon-wsp">
+</span></span><span class="alectryon-sentence"><span class="alectryon-input"><span class="highlight"><span class="kn">Qed</span>.</span></span></span></pre><p>What happened there? What <tt class="docutils literal">hammer</tt> does, is it sends all theorems that are available to us, as well
+as the current hypotheses and goal, to an ATP (on my machine, probably CVC4 or Z3). It asks the ATP
+if it can prove the current goal, and if so which helper lemmas did it use to prove it. If
+the ATP was unable to prove the current goal, Hammer will ask the next available ATP if it can prove
+it. If any available ATP responds back with a proof and a list of theorems it used, then Hammer
+will attempt to reconstruct that proof in Coq. Now, not all reconstructions will work, mainly
+due to the fact that Coq is based off of an intuitionistic logic, and most ATPs are based off of
+classical logics. But the vast majority will work.</p>
+</div>
+<div class="section" id="tactician">
+<h1>Tactician</h1>
+</div>
+</div>
+</div></body>
+</html>
